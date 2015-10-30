@@ -1,23 +1,30 @@
 #!/usr/bin/env python3
+
 import argparse
-import requests
+from urllib import request
 from lxml import html
+
+def pretty_printer(contens):
+    """This function pretty prints the response received from multitran.com."""
+    for elem in contens:
+        if elem.endswith('.'):
+            print(''.join(['\033[1m\x1B[3m', elem, '\x1B[23m\033[0m']))
+        else:
+            print(''.join(['  "', elem, '"']))
+
 
 
 def main(args):
-    """Runner"""
     print(args)
     multitran = "http://www.multitran.com/m.exe?s={0}"
-    with open('logg.xml', 'r') as f:
-        fdata = f.read()
-    #page = requests.get(multitran.format(args.word))
-    #print(page.encoding)
-    #page.encoding = 'cp1251'
-    #print(page.text)
-    html_tree = html.fromstring(fdata)
-    #text = html_tree.xpath('/table/tr/td/text()')
-    text = html_tree.xpath('//table/tr/td[@class="trans"]/a[@href]/text()')
-    print(text)
+    with request.urlopen(multitran.format(args.word)) as resp:
+        fdata = resp.read()
+        html_tree = html.fromstring(fdata)
+    text = html_tree.xpath(''.join(['//table/tr/td[contains(@class, "subj")',
+                            ' or contains(@class, "trans")]/a[@href]/text()']))
+    pretty_printer(text)
+
+
 
 if __name__ == '__main__':
     prs = argparse.ArgumentParser(description="""
