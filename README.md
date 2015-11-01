@@ -1,2 +1,2 @@
 # multitran-er
-simple multitran.ru client
+simple multitran.ru console client
