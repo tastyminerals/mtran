@@ -5,6 +5,7 @@ import urllib
 import urllib.request
 import sys
 from lxml import html
+from argparse import RawTextHelpFormatter
 
 
 def show_langs():
@@ -20,11 +21,11 @@ def pretty_printer(contens, showall):
     i = 0
     cats = -1
     if not showall:
-        cats = 3
+        cats = 4
     for elem in contens:
         if elem.endswith('.'):
             i += 1
-            if cats < i:
+            if cats == i:
                 break
             print(''.join(['\033[1m\x1B[3m', elem, '\x1B[23m\033[0m']))
         else:
@@ -41,14 +42,12 @@ def main(args):
     if not args.word:
         print('Please provide a valid word.')
         sys.exit(0)
+    else:
+        # sub whitespaces with '+' if a prhase
+        args.word = '+'.join(args.word.split())
 
-    # http://www.multitran.com/m.exe?l1=1&l2=4&s=tree
-    # lang query
-    # l1={1}&l2={2}&s
     multitran = "http://www.multitran.com/m.exe?l1={0}&l2={1}&s={2}"
     url = multitran.format(LANG[args.pair][0], LANG[args.pair][1], args.word)
-    # http://www.multitran.com/m.exe?l1=1&l2=4&s=tree
-    # lang query
     # splitting url into components
     parsed = urllib.parse.urlsplit(url)
     # encoding query word in utf-8
@@ -70,6 +69,8 @@ LANG = {'enru': [1, 2],
         'ruen': [2, 1],
         'ende': [1, 3],
         'deen': [3, 1],
+        'deru': [2, 3],
+        'rude': [3, 2],
         'enfr': [1, 4],
         'fren': [4, 1],
         'ensp': [1, 5],
@@ -93,6 +94,8 @@ LANG = {'enru': [1, 2],
 ABBR = (
         ('English - Russian', 'enru'),
         ('Russian - English', 'ruen'),
+        ('German - Russian', 'deru'),
+        ('Russian - German', 'rude'),
         ('English - German', 'ende'),
         ('German - English', 'deen'),
         ('English - French', 'enfr'),
@@ -116,25 +119,28 @@ ABBR = (
 
 if __name__ == '__main__':
     prs = argparse.ArgumentParser(description="""
-    This is a simple client for multitran.ru -- a multi-language online
-    dictionary.""")
+    This is a simple client for multitran.com -- a multi-language online
+    dictionary. \n
+    USAGE:
+        multirun deen Baum,
+        multirun enru "penny dreadful",
+        multirun -a enru tree
+        """, formatter_class=RawTextHelpFormatter)
     prs.add_argument('pair', nargs='?', type=str,
                      help='Specify a language pair (enru, ruen, ende etc.)')
     prs.add_argument('word', nargs='?', type=str,
                      help='Specify a word to translate.')
     prs.add_argument('-a', '--all',
                      action='store_true',
-                     help='Show translations in all categories \
-                          (by default first 3 avaiable categories\
-                           are displayed).',
+                     help='Show all translations in all categories.',
                      required=False)
     prs.add_argument('-l', '--langs', action='store_true',
                      help='Show available language pairs.',
                      required=False)
-    prs.add_argument('-gui', '--gui',
-                     action='store_true',
-                     help='Run GUI client instead of console.',
-                     required=False)
+    # prs.add_argument('-gui', '--gui',
+    #                 action='store_true',
+    #                 help='Run GUI client instead of console.',
+    #                 required=False)
     prs.add_argument('--version', action='version', version='%(prog)s 1.0')
     args = prs.parse_args()
     main(args)
