@@ -19,7 +19,6 @@ source=(https://github.com/tastyminerals/multitran-er/blob/master/multitran_er.p
 md5sums=(897f05b8b3d2c28133118084888de4dd)
 
 package() {
-  cd $startdir/
   # python setup.py install --root="$pkgdir/" --optimize=1
   install -D -m 755 multitran_er.py ${pkgdir}/usr/bin/multitran_er
 }
